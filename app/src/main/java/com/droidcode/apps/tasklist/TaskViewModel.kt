@@ -10,12 +10,21 @@ class TaskViewModel: ViewModel(){
         when(action){
             is TaskIntent.AddTask -> addTask(action.content)
             is TaskIntent.ChangeFilter -> filterTaskList(action.filter)
+            is TaskIntent.ChangeTaskState -> changeTaskStatus(action.taskId)
         }
     }
 
     private fun addTask(content: String){
         val newTask = Task(generateTaskId(), content, false)
         state.value = state.value.copy(state.value.tasks + newTask)
+    }
+
+    private fun changeTaskStatus(taskId: Int){
+        val updatedTasks = state.value.tasks.map { task ->
+            if (task.id == taskId) task.copy(isDone = !task.isDone) else task
+        }
+        state.value = state.value.copy(tasks = updatedTasks)
+
     }
 
     private fun filterTaskList(filter: TaskFilter){

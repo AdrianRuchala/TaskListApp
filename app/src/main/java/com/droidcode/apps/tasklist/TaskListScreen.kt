@@ -63,6 +63,7 @@ fun TaskListScreen(modifier: Modifier, viewModel: TaskViewModel) {
                     Modifier
                         .padding(8.dp)
                         .fillMaxWidth()
+                        .clickable { viewModel.onAction(TaskIntent.ChangeTaskState(task.id)) }
                 ) {
                     if (task.isDone) {
                         Image(
