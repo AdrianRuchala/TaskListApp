@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 class TaskViewModel : ViewModel() {
     val state = mutableStateOf(TaskListState())
 
+    private var allTasks = TaskListState()
+
     fun onAction(action: TaskIntent) {
         when (action) {
             is TaskIntent.AddTask -> addTask(action.content)
@@ -17,6 +19,7 @@ class TaskViewModel : ViewModel() {
     private fun addTask(content: String) {
         val newTask = Task(generateTaskId(), content, false)
         state.value = state.value.copy(state.value.tasks + newTask)
+        allTasks = state.value
     }
 
     private fun changeTaskStatus(taskId: Int) {
@@ -24,14 +27,16 @@ class TaskViewModel : ViewModel() {
             if (task.id == taskId) task.copy(isDone = !task.isDone) else task
         }
         state.value = state.value.copy(tasks = updatedTasks)
-
+        allTasks = state.value
     }
 
     private fun filterTaskList(filter: TaskFilter) {
+        state.value = allTasks
+
         val filteredTasks = when (filter) {
-            TaskFilter.ALL -> this.state.value.tasks.sortedBy { it.id }
-            TaskFilter.ACTIVE -> this.state.value.tasks.sortedBy { it.isDone }
-            TaskFilter.COMPLETED -> this.state.value.tasks.sortedBy { !it.isDone }
+            TaskFilter.ALL -> state.value.tasks
+            TaskFilter.ACTIVE -> state.value.tasks.filter { !it.isDone }
+            TaskFilter.COMPLETED -> state.value.tasks.filter { it.isDone }
         }
 
         state.value = state.value.copy(filteredTasks)
